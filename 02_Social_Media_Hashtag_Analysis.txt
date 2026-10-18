@@ -1,0 +1,202 @@
+//USE CASE 2: Social Media Hashtag Analysis
+
+ 1. Problem Statement
+
+A social-media platform stores user posts in HDFS. Each post contains information such as post ID, username, caption and hashtags.
+The data engineering team wants to determine how many posts contain each hashtag.
+The MapReduce application should:
+
+1. Read social-media post data from HDFS.
+2. Extract hashtags.
+3. Generate (hashtag, 1) using a Python Mapper.
+4. Use a Combiner for local aggregation.
+5. Use Hadoop's Partitioner to distribute hashtags among Reducers.
+6. Shuffle and group identical hashtags.
+7. Calculate the final hashtag frequency.
+8. Store the result in HDFS.
+
+
+# 2. Sample Input
+social_posts.txt
+
+//
+P1001 rahul #python #hadoop #bigdata
+P1002 priya #python #spark
+P1003 amit #hadoop #spark #bigdata
+P1004 neha #python #bigdata
+
+
+3. Expected Output
+#bigdata    3
+#hadoop     2
+#python     3
+#spark      2
+
+# 4. Technology Stack
+
+| Component            | Technology                  |
+
+| Operating System     | Ubuntu / WSL                |
+| Programming Language | Python                      |
+| Processing           | Hadoop MapReduce            |
+| Storage              | HDFS                        |
+| Mapper               | Python                      |
+| Combiner             | Python                      |
+| Partitioner          | Hadoop Default Partitioner  |
+| Reducer              | Python                      |
+| Execution            | Hadoop Streaming            |
+| Input                | Text / semi-structured data |
+| Output               | HDFS                        |
+
+
+//Why Python here?
+
+Hadoop MapReduce is traditionally associated with Java, but Hadoop Streaming allows programs written in languages such as Python to participate in MapReduce.
+
+//So this project demonstrates:
+
+Java MapReduce
+        +
+Python Hadoop Streaming
+
+This is useful for a fresher interview.
+
+
+//5. Complete Architecture
+
+             Social Media Posts
+                     |
+                     v
+                    HDFS
+                     |
+                     v
+              Python Mapper
+                     |
+                     |
+       +-------------+-------------+
+       |             |             |
+   #python,1     #hadoop,1    #bigdata,1
+       |             |             |
+       +-------------+-------------+
+                     |
+                     v
+                Combiner
+                     |
+             Local aggregation
+                     |
+                     v
+               Partitioner
+                     |
+            +--------+--------+
+            |                 |
+            v                 v
+       Reducer 0          Reducer 1
+            |                 |
+            +--------+--------+
+                     |
+                Shuffle/Sort
+                     |
+                     v
+                  Reducer
+                     |
+                     v
+                    HDFS
+                     |
+                     v
+               Final Output
+
+6. Map Stage
+
+Input:
+
+P1001 rahul #python #hadoop #bigdata
+
+//Python Mapper produces:
+#python    1
+#hadoop    1
+#bigdata   1
+
+//For:
+P1002 priya #python #spark
+
+
+//Mapper produces:
+#python    1
+#spark     1
+
+
+//Overall Mapper output:
+#python    1
+#hadoop    1
+#bigdata   1
+#python    1
+#spark     1
+#hadoop    1
+#spark     1
+#bigdata   1
+#python    1
+#bigdata   1
+
+
+7. Combiner Stage
+
+Suppose one Mapper receives several records.
+
+Instead of sending:
+#python    1
+#python    1
+#python    1
+#bigdata   1
+#bigdata   1
+
+
+the Combiner can produce:
+#python    3
+#bigdata   2
+
+This reduces intermediate network traffic.
+
+
+8. Partitioner Stage
+
+Hadoop's default Partitioner determines which Reducer receives each hashtag.
+
+//Conceptually:
+
+#python  → Reducer 0
+#hadoop  → Reducer 1
+#bigdata → Reducer 0
+#spark   → Reducer 1
+
+//Again:
+
+Same key → Same Reducer
+
+This is essential for obtaining the correct final count.
+
+
+9. Shuffle and Sort
+
+//Hadoop groups the same hashtags:
+#python  → [1,1,1]
+#hadoop  → [1,1]
+#bigdata → [1,1,1]
+#spark   → [1,1]
+
+
+# 10. Reduce Stage
+
+//Reducer performs the aggregation:
+#python  → 3
+#hadoop  → 2
+#bigdata → 3
+#spark   → 2
+
+
+//Final output:
+#bigdata    3
+#hadoop     2
+#python     3
+#spark      2
+
+

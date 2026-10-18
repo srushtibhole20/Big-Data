@@ -1,0 +1,134 @@
+# Comparison of Both Lab Usecases:
+
+| Feature     | Use Case 1        | Use Case 2             |
+
+| Application | Web Log Analysis  | Social Media Analytics |
+| Language    | Java          	  | Python                 |
+| Mapper      | Java              | Python                 |
+| Combiner    | Java              | Python                 |
+| Partitioner | Custom Java   	  | Hadoop Default         |
+| Reducer     | Java              | Python                 |
+| Input       | Web logs          | Social posts           |
+| Storage     | HDFS              | HDFS                   |
+| Processing  | Hadoop MapReduce  | Hadoop Streaming       |
+| Main output | HTTP status count | Hashtag count          |
+
+
+# What You Should Demonstrate in the Lab
+
+//For Use Case 1, demonstrate:
+1. Create input file
+2. Upload to HDFS
+3. Write Java Mapper
+4. Write Java Combiner
+5. Write Custom Partitioner
+6. Write Java Reducer
+7. Compile Java files
+8. Create JAR
+9. Run MapReduce job
+10. Check HDFS output
+
+//For Use Case 2:
+
+1. Create social-media input
+2. Upload to HDFS
+3. Write Python Mapper
+4. Write Python Combiner
+5. Write Python Reducer
+6. Give executable permission
+7. Run using Hadoop Streaming
+8. Check HDFS output
+
+
+# Important Interview Questions
+Q1. Why do we use Combiner?
+
+Answer:
+
+> Combiner performs local aggregation at the Mapper side and reduces the amount of intermediate data transferred across the network during Shuffle.
+
+ Q2. Is Combiner mandatory?
+
+Answer:
+
+> No. Combiner is optional and Hadoop may or may not execute it.
+
+ Q3. What does Partitioner do?
+
+Answer:
+
+> Partitioner determines which Reducer receives a particular key.
+
+ Q4. What is the most important rule of Partitioner?
+
+Answer:
+
+> All records with the same key must be sent to the same Reducer.
+
+ Q5. What happens during Shuffle?
+
+Answer:
+
+> Hadoop transfers, sorts and groups Mapper output based on keys before sending the grouped data to the Reducer.
+
+ Q6. Why use Java Mapper?
+
+> Java provides native Hadoop MapReduce APIs and is traditionally used for Hadoop MapReduce applications.
+
+ Q7. Why use Python Mapper?
+
+> Python can be used with Hadoop Streaming, allowing Python programs to participate in the MapReduce framework through standard input and output.
+
+ Q8. What is the difference between Combiner and Reducer?
+Combiner → local aggregation → optimization
+Reducer  → final aggregation → final result
+
+
+ Q9. Does Partitioner aggregate data?
+
+> No. Partitioner only determines which Reducer receives a key.
+
+ Q10. What happens if the Partitioner sends the same key to different Reducers?
+
+> The aggregation can be split across Reducers, so the final result for that key would not be correctly combined. Therefore, the same key must always go to the same Reducer.
+
+
+# Final Exam Diagram to Remember
+
+//For Java project:
+
+HDFS Input
+    ↓
+Java Mapper
+    ↓
+Combiner
+    ↓
+Custom Partitioner
+    ↓
+Shuffle & Sort
+    ↓
+Java Reducer
+    ↓
+HDFS Output
+
+
+//For Python project:
+
+HDFS Input
+    ↓
+Python Mapper
+    ↓
+Python Combiner
+    ↓
+Default Partitioner
+    ↓
+Shuffle & Sort
+    ↓
+Python Reducer
+    ↓
+HDFS Output
+
+ It also gives you enough material to explain Mapper, Combiner, Partitioner, Shuffle, Reducer, HDFS, Java MapReduce, and Hadoop Streaming in a fresher-level Big Data Engineer interview.
+//////////////////////////////////////////////////////
+
+
